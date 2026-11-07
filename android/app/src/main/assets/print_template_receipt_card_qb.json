@@ -1,0 +1,255 @@
+{
+  "sections": [
+    {
+      "sectionName": {
+        "data": "header",
+        "fontSize": 20,
+        "alignment": "center",
+        "paddingBottom": 10
+      }
+    },
+    {
+      "fields": [
+        {
+          "key": {
+            "data": "----------------------------------------------------------",
+            "divider": true
+          }
+        }
+      ]
+    },
+    {
+      "sectionName": {
+        "data": "billNo",
+        "alignment": "left",
+        "fontSize": 20,
+        "prefix": "Bill No: "
+      }
+    },
+    {
+      "sectionName": {
+        "data": "billTime",
+        "alignment": "left",
+        "fontSize": 20,
+        "prefix": "Bill Time: "
+      }
+    },
+    {
+      "sectionName": {
+        "data": "printTime",
+        "alignment": "left",
+        "fontSize": 20,
+        "prefix": "Print Time: "
+      }
+    },
+    {
+      "fields": [
+        {
+          "key": {
+            "data": "----------------------------------------------------------",
+            "divider": true
+          }
+        }
+      ]
+    },
+    {
+      "sectionName": {
+        "data": "contactNo",
+        "alignment": "left",
+        "fontSize": 20,
+        "prefix": "Phone: "
+      }
+    },
+    {
+      "sectionName": {
+        "data": "address",
+        "alignment": "left",
+        "fontSize": 20,
+        "prefix": "Address: "
+      }
+    },
+    {
+      "fields": [
+        {
+          "key": {
+            "data": "----------------------------------------------------------",
+            "divider": true
+          }
+        }
+      ]
+    },
+
+    {
+      "fields": [
+        {
+
+        }
+      ]
+    },
+    {
+      "tableInfo": {
+        "data": [
+          [
+            {
+              "data": "Item",
+              "fontSize": 18,
+              "weight": 0.25,
+              "alignment": "left"
+            },
+            {
+              "data": "Price",
+              "fontSize": 18,
+              "weight": 0.25,
+              "alignment": "center"
+            },
+            {
+              "data": "Qty",
+              "fontSize": 18,
+              "weight": 0.25,
+              "alignment": "center"
+            },
+            {
+              "data": "Amount",
+              "fontSize": 18,
+              "weight": 0.25,
+              "alignment": "right"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "fields": [
+        {
+          "key": {
+            "data": "----------------------------------------------------------",
+            "divider": true
+          }
+        }
+      ]
+    },
+    {
+      "arrayInArrayKey": "itemModelList",
+      "tableInfo": {
+        "data": [
+          [
+            {
+              "data": "itemName",
+              "fontSize": 18,
+              "weight": 0.25,
+              "alignment": "left"
+            },
+            {
+              "alignment": "center",
+              "data": "amount",
+              "weight": 0.25,
+              "fontSize": 18
+            },
+            {
+              "alignment": "center",
+              "data": "qty",
+              "weight": 0.25,
+              "dataType": "number",
+              "fontSize": 18
+            },
+            {
+              "alignment": "right",
+              "data": "itemTotal",
+              "weight": 0.25,
+              "fontSize": 18
+            }
+          ],
+          [
+            {
+              "data": "Item Total",
+              "fontSize": 18,
+              "weight": 0.5,
+              "alignment": "left"
+            },
+            {
+              "data": "itemTotal",
+              "fontSize": 18,
+              "weight": 0.5,
+              "alignment": "right"
+            }
+          ],
+          [
+            {
+              "data": "",
+              "divider": true,
+              "weight": 1
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "fields": [
+        {
+          "key": {
+            "data": "----------------------------------------------------------",
+            "divider": true
+          }
+        }
+      ]
+    },
+    {
+      "fields": [
+        {
+          "key": {
+            "data": "totalItems",
+            "fontSize": 20,
+            "weight": 0.5,
+            "suffix": " Items",
+            "paddingTop": 8,
+            "dataType": "number"
+          },
+          "value": {
+            "data": "itemsAmount",
+            "alignment": "right",
+            "weight": 0.5,
+            "fontSize": 20
+          }
+        },
+        {
+          "key": {
+            "data": "Total Amount",
+            "fontSize": 20,
+            "weight": 0.5,
+            "paddingTop": 8
+          },
+          "value": {
+            "data": "totalAmount",
+            "alignment": "right",
+            "weight": 0.5,
+            "fontSize": 20
+          }
+        }
+      ]
+    },
+    {
+      "fields": [
+        {
+          "key": {
+            "data": "----------------------------------------------------------",
+            "divider": true
+          }
+        }
+      ]
+    },
+    {
+      "sectionName": {
+        "data": "footer",
+        "fontSize": 20,
+        "alignment": "center"
+      }
+    },
+    {
+      "sectionName": {
+        "data": "",
+        "dataType": "emptyline",
+        "paddingBottom": 40
+      }
+    }
+  ]
+}

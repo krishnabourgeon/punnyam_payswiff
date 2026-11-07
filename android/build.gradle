@@ -1,0 +1,63 @@
+//buildscript {
+//    ext.kotlin_version = '1.9.24'
+//    repositories {
+//        google()
+//        mavenCentral()
+//    }
+//
+//    dependencies {
+//        classpath 'com.android.tools.build:gradle:7.1.2'
+//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//    }
+//}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// flutter_sunmi_printer_plus (0.0.1) predates AGP's mandatory `namespace`
+// requirement and doesn't declare one in its own android/build.gradle,
+// which fails the build under AGP 8+ ("Namespace not specified"). Since
+// we can't edit the published package, patch it in here using the same
+// package name it already declares in its AndroidManifest.xml.
+//
+// It also pins compileSdkVersion 30, but transitively resolves an
+// AndroidX resource that references android:attr/lStar (added in API 31),
+// which AAPT can't resolve against a 30-level SDK ("resource
+// android:attr/lStar not found") — only breaks in release builds because
+// resource *linking* (verifyReleaseResources) only runs there. Raising
+// compileSdk is compile-time only and safe; only bump subprojects still
+// below 31 so this can't touch the app module's own (much higher) value.
+subprojects {
+    afterEvaluate { proj ->
+        def androidExt = proj.extensions.findByName('android')
+        if (androidExt == null) return
+
+        if (androidExt.hasProperty('namespace') && androidExt.namespace == null) {
+            androidExt.namespace = proj.group
+        }
+
+        def currentCompileSdk = androidExt.compileSdkVersion
+        if (currentCompileSdk != null) {
+            def sdkNum = currentCompileSdk.toString().replaceAll(/[^0-9]/, '')
+            if (sdkNum && sdkNum.toInteger() < 31) {
+                androidExt.compileSdkVersion(34)
+            }
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
