@@ -15,9 +15,11 @@ class SavequickbillDatamodel {
       this.message});
 
   SavequickbillDatamodel.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
+    status = json['status'] == true ||
+        json['status'] == 1 ||
+        json['status'] == 'true';
     temple = json['temple'] != null ? Temples.fromJson(json['temple']) : null;
-    billImage = json['bill_image'];
+    billImage = json['bill_image']?.toString();
     summary =
         json['summary'] != null ? Summarys.fromJson(json['summary']) : null;
     if (json['details'] != null) {
@@ -26,7 +28,7 @@ class SavequickbillDatamodel {
         details!.add(Detailss.fromJson(v));
       });
     }
-    message = json['message'];
+    message = json['message']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -100,12 +102,12 @@ class Summarys {
       {this.id, this.name, this.billDate, this.mode, this.total, this.recvAmt});
 
   Summarys.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    billDate = json['bill_date'];
-    mode = json['mode'];
-    total = json['total'];
-    recvAmt = json['recv_amt'];
+    id = json['id'] is int ? json['id'] : int.tryParse('${json['id']}');
+    name = json['name']?.toString();
+    billDate = json['bill_date']?.toString();
+    mode = json['mode']?.toString();
+    total = json['total']?.toString();
+    recvAmt = json['recv_amt']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -129,10 +131,10 @@ class Detailss {
   Detailss({this.pooja, this.qty, this.rate, this.amount});
 
   Detailss.fromJson(Map<String, dynamic> json) {
-    pooja = json['pooja'];
-    qty = json['qty'];
-    rate = json['rate'];
-    amount = json['amount'];
+    pooja = json['pooja']?.toString();
+    qty = json['qty']?.toString();
+    rate = json['rate']?.toString();
+    amount = json['amount']?.toString();
   }
 
   Map<String, dynamic> toJson() {

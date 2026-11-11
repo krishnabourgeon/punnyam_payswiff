@@ -36,7 +36,10 @@ IconData _iconFor(PaymentModeDataList m) {
 /// Shows the payment-mode popup when Save Bill is tapped.
 /// Returns the selected mode, or null if the user cancels.
 Future<PaymentChoice?> showPaymentModeDialog(
-    BuildContext context, BillingProvider provider) async {
+    BuildContext context, BillingProvider provider,
+    {String? amount}) async {
+  // Quick Bill passes its own total; normal billing uses the paid amount field
+  final shownAmount = amount ?? provider.paidAmountController.text.trim();
   // All modes come from the payment-modes API (or SQLite when offline).
   final modes = provider.paymentModeDataList;
 
@@ -72,7 +75,7 @@ Future<PaymentChoice?> showPaymentModeDialog(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Amount: ₹ ${provider.paidAmountController.text.trim()}',
+                  'Amount: ₹ $shownAmount',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,

@@ -310,7 +310,8 @@ class BillingProvider extends ChangeNotifier with ProviderHelperClass {
       bool enableLoaderState = false,
       int? modeid,
       String? amt,
-      List? poojalist}) async {
+      List? poojalist,
+      String? transactionid}) async {
     if (enableLoaderState) updateBtnLoader(true);
     if (!enableLoaderState) updateLoadState(LoaderState.loading);
     // SaveBillBody saveBillBody = SaveBillBody(
@@ -323,7 +324,10 @@ class BillingProvider extends ChangeNotifier with ProviderHelperClass {
     //     poojaDetails: previewBillResponse?.data?.poojaDetails);
     try {
       var res = await serviceConfig.savequickbill(
-          amt: amt, modeid: modeid, poojalist: poojalist);
+          amt: amt,
+          modeid: modeid,
+          poojalist: poojalist,
+          transactionid: transactionid);
       if (res.isValue) {
         savequickbills = res.asValue!.value;
         String? imageUrl =
@@ -1473,10 +1477,34 @@ class BillingProvider extends ChangeNotifier with ProviderHelperClass {
             weekDays: weekDays);
         poojaDetailsList.add(poojaDetails1);
       }
+      // Add & Next: keep the customer (name + star) as default for the next
+      // entry, but start a fresh deity / pooja selection.
+      final keepName = nameController.text;
+      final keepName2 = nameController2.text;
+      final keepStarName = starName;
+      final keepStarId = starId;
+      final keepStarName1 = starName1;
+      final keepStarId1 = starId1;
+
       clearValues(isClearDate: false);
       updateFromDate(DateFormat('y-MM-dd').format(DateTime.now()));
-      getDeityIdFromName(deityname!);
-      getPoojaIdFromName(poojaName!);
+
+      nameController.text = keepName;
+      nameController2.text = keepName2;
+      starName = keepStarName;
+      starId = keepStarId;
+      starName1 = keepStarName1;
+      starId1 = keepStarId1;
+
+      deityname = null;
+      deityId = '';
+      poojaName = null;
+      poojaId = '';
+      poojaDataList = [];
+      poojaRate = null;
+      poojacountrow = null;
+      ratefield = false;
+      rateController.clear();
       updateBillingFormState();
       updateLoadState(LoaderState.loaded);
     });

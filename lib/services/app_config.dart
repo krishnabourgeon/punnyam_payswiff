@@ -11,11 +11,11 @@ class AppConfig {
   static String? customerNumber;
   static String? settings;
   static int? version = 1;
-  static String psMerchantKey = 'A0229BB8B4E0';
-  static String psPartnerKey = 'A0229BB8B4E0';
-  static String psMerchantApiKey = 'A0229BB8B4E0';
-  static String psSecureKey = 'B9555252F36195836D54EAEEDED6A7BF';
-  static String? psMid = '1006080'; 
+  static String psMerchantKey = 'A329C0400B3E';
+  static String psPartnerKey = 'B01408266464';
+  static String psMerchantApiKey = 'A329C0400B3E';
+  static String psSecureKey = '97A9DE902103592A46E712C2502606E';
+  static String? psMid = '2430535'; 
   static String? psTid;
   static String? psSerialNo;
 }

@@ -327,12 +327,15 @@ class ServiceConfig {
   }
 
   Future<Result> savequickbill(
-      {int? modeid, String? amt, List? poojalist}) async {
+      {int? modeid, String? amt, List? poojalist, String? transactionid}) async {
     final body = {
       "counter_id": AppConfig.counterID,
       "payment_mode": modeid,
       "bill_amount": amt,
       "paid_amount": amt,
+      // Card / QR (Payswiff) reference - same key as save-bill
+      if (transactionid != null && transactionid.isNotEmpty)
+        "transaction_id": transactionid,
       "pooja_details": poojalist
     };
 

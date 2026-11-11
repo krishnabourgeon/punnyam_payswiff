@@ -71,7 +71,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         // Payswiff SDK. Change PS_ENV to "release" when going live.
-        buildConfigField "String", "PS_ENV", "\"uat\""
+        buildConfigField "String", "PS_ENV", "\"release\""
         buildConfigField "String", "PS_APP_NAME", "\"Punnyam\""
         buildConfigField "String", "PS_BANNER_NAME", "\"<BANNER_NAME>\""
     }
@@ -124,7 +124,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.aar'])
 
-    // ---- Payswiff / APOS SDK (ps-n86Uat-v2.1.13.aar) requirements ----
+    // ---- Payswiff / APOS SDK (ps-n86Release-v2.1.13.aar) requirements ----
     // Location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     // Material: the SDK shows its error messages with Snackbar

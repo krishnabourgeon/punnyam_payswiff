@@ -5,8 +5,10 @@ class QuickbillDatamodel {
   QuickbillDatamodel({this.status, this.data});
 
   QuickbillDatamodel.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    if (json['data'] != null) {
+    status = json['status'] == true ||
+        json['status'] == 1 ||
+        json['status'] == 'true';
+    if (json['data'] is List) {
       data = <Data>[];
       json['data'].forEach((v) {
         data!.add(Data.fromJson(v));
@@ -32,9 +34,10 @@ class Data {
   Data({this.id, this.name, this.rate});
 
   Data.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    rate = json['rate'];
+    // API / SQLite may send numbers or strings - accept both
+    id = json['id'] is int ? json['id'] : int.tryParse('${json['id']}');
+    name = json['name']?.toString();
+    rate = json['rate']?.toString();
   }
 
   Map<String, dynamic> toJson() {

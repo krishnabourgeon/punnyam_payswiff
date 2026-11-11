@@ -21,6 +21,10 @@ class NormalBillingWidget extends StatefulWidget {
 }
 
 class _NormalBillingWidgetState extends State<NormalBillingWidget> {
+  /// Star to show as selected; null for the "Nodata" placeholder / empty.
+  String? _realStar(String? name) =>
+      (name == null || name.isEmpty || name == 'Nodata') ? null : name;
+
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -125,6 +129,8 @@ class _NormalBillingWidgetState extends State<NormalBillingWidget> {
             )
           : CustomDropDownSearch(
               labelText: widget.billingProvider.starName,
+              // keeps the previous star shown after "Save and Add Next"
+              selected: _realStar(widget.billingProvider.starName),
               isShowSearch: true,
               onChanged: (value) {
                 widget.billingProvider
@@ -166,6 +172,7 @@ class _NormalBillingWidgetState extends State<NormalBillingWidget> {
                     )
                   : CustomDropDownSearch(
                       labelText: widget.billingProvider.starName,
+                      selected: _realStar(widget.billingProvider.starName1),
                       // labelColor: Colors.black,
                       isShowSearch: true,
                       onChanged: (value) {

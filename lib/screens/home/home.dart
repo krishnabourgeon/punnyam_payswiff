@@ -16,6 +16,7 @@ import 'package:punnyam/common/extension.dart';
 import 'package:punnyam/common/select_card.dart';
 import 'package:punnyam/providers/billing_provider.dart';
 import 'package:punnyam/providers/home_provider.dart';
+import 'package:punnyam/screens/home/quick_bill.dart';
 // import 'package:punnyam/screens/home/quick_bill.dart';
 import 'package:punnyam/screens/login/login.dart';
 import 'package:punnyam/services/app_config.dart';
@@ -407,34 +408,34 @@ class _HomeState extends State<Home> {
                                             })),
                                       ),
                                     ),
-                                    // 8.verticalSpace,
-                                    // InkWell(
-                                    //   onTap: () {
-                                    //     final home = context.read<HomeProvider>();
-                                    //     home.data.clear();
-                                    //     Navigator.of(context).push(MaterialPageRoute(
-                                    //       builder: (context) =>
-                                    //           const QuickBillScreen(),
-                                    //     ));
-                                    //   },
-                                    //   child: Container(
-                                    //     height: 65.h,
-                                    //     width:
-                                    //         MediaQuery.of(context).size.width / 1.18,
-                                    //     decoration: BoxDecoration(
-                                    //         borderRadius: BorderRadius.circular(25.r),
-                                    //         gradient: LinearGradient(colors: [
-                                    //           ColorPalette.primaryColor,
-                                    //           ColorPalette.orange
-                                    //         ])),
-                                    //     child: Center(
-                                    //         child: Text(
-                                    //       "Quick Bill",
-                                    //       style: TextStyle(
-                                    //           color: Colors.white, fontSize: 18.sp),
-                                    //     )),
-                                    //   ),
-                                    // ),
+                                    //8.verticalSpace,
+                                    InkWell(
+                                      onTap: () {
+                                        final home = context.read<HomeProvider>();
+                                        home.data.clear();
+                                        Navigator.of(context).push(MaterialPageRoute(
+                                          builder: (context) =>
+                                              const QuickBillScreen(),
+                                        ));
+                                      },
+                                      child: Container(
+                                        height: 65.h,
+                                        width:
+                                            MediaQuery.of(context).size.width / 1.18,
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(25.r),
+                                            gradient: LinearGradient(colors: [
+                                              ColorPalette.primaryColor,
+                                              ColorPalette.orange
+                                            ])),
+                                        child: Center(
+                                            child: Text(
+                                          "Quick Bill",
+                                          style: TextStyle(
+                                              color: Colors.white, fontSize: 18.sp),
+                                        )),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

@@ -114,6 +114,7 @@ class AposPayment {
             merchantKey: AppConfig.psMerchantKey,
             partnerKey: AppConfig.psPartnerKey);
         debugPrint('Payswiff activation: $msg');
+        AppConfig.psTid = null; // reload MID/TID for the newly activated environment
       }
     } on PlatformException catch (e) {
       debugPrint('Payswiff activation failed: ${e.message}');

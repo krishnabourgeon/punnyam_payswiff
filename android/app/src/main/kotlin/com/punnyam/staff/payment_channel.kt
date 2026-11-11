@@ -43,6 +43,7 @@ class PaymentChannel(private val activity: Activity) {
         const val CHANNEL = "punnyam/apos_payment"
         const val REQ_PAYMENT = 7001
         private const val TAG = "APOS_PAY"
+        private const val PREF_ENV = "activated_env"
 
         // Values taken from the SDK (com.pnsol.sdk.interfaces.CommonResultCode)
         private const val RC_SUCCESS = 1018
@@ -71,7 +72,7 @@ class PaymentChannel(private val activity: Activity) {
         channel!!.setMethodCallHandler { call, result ->
             try {
                 when (call.method) {
-                    "isActivated" -> result.success(AccountValidator(activity).isAccountActivated())
+                    "isActivated" -> result.success(isActivatedForEnv())
                     "activate" -> activate(call, result)
                     "getMerchantConfig" -> getMerchantConfig(call, result)
                     "startSale" -> startSale(call, result)
@@ -94,12 +95,33 @@ class PaymentChannel(private val activity: Activity) {
         val partnerKey = call.argument<String>("partnerKey")
             ?: return result.error("ARGS", "partnerKey missing", null)
 
+        // Drop a stale activation from another environment (e.g. UAT user id) first.
+        val env = prefs.getString(PREF_ENV, null)
+        if (env != BuildConfig.PS_ENV && AccountValidator(activity).isAccountActivated()) {
+            Log.w(TAG, "Clearing SDK activation from env=$env before activating for ${BuildConfig.PS_ENV}")
+            activity.getSharedPreferences("mpay", Context.MODE_PRIVATE).edit().clear().commit()
+            activity.deleteSharedPreferences("mpay")
+        }
+
         AccountValidator(activity).accountActivation(
             oneShotHandler(result) { obj ->
+                prefs.edit().putString(PREF_ENV, BuildConfig.PS_ENV).apply()
                 (obj as? LoginResponse)?.responseMessage ?: "Activated"
             },
-            merchantKey, partnerKey
+            merchantKey.trim(), partnerKey.trim()
         )
+    }
+
+    // The SDK stores its activation locally and doesn't know which server it was for.
+    // A device activated on UAT would still report "activated" on a release build and
+    // get "Invalid user id" from production, so we also remember the environment.
+    private val prefs get() = activity.getSharedPreferences("punnyam_ps", Context.MODE_PRIVATE)
+
+    private fun isActivatedForEnv(): Boolean {
+        val sdkActivated = AccountValidator(activity).isAccountActivated()
+        val env = prefs.getString(PREF_ENV, null)
+        Log.d(TAG, "isActivated sdk=$sdkActivated env=$env build=${BuildConfig.PS_ENV}")
+        return sdkActivated && env == BuildConfig.PS_ENV
     }
 
     // ---------------------------------------------------------------- merchant config
@@ -132,6 +154,9 @@ class PaymentChannel(private val activity: Activity) {
         }
         val amount = call.argument<String>("amount")
             ?: return result.error("ARGS", "amount missing", null)
+        if (!isActivatedForEnv()) {
+            return result.error("NOT_ACTIVATED", "Payment device not activated for ${BuildConfig.PS_ENV}", null)
+        }
 
         val model = PosPaymentModel(
             appName,                                     // 1 appName
@@ -234,6 +259,21 @@ class PaymentChannel(private val activity: Activity) {
 
     private val qrHandler = Handler(Looper.getMainLooper()) { msg ->
         Log.d(TAG, "QR msg ${msg.what}: ${msg.obj}")
+        try { handleQrMessage(msg) }
+        catch (e: Throwable) {
+            // Never let an SDK message crash the app.
+            Log.e(TAG, "QR message ${msg.what} handling failed", e)
+            val reply = pendingQr
+            pendingQr = null
+            try {
+                if (reply != null) reply.error("QR_FAILED", e.message ?: "QR error", null)
+                else pushQrStatus("error", null, e.message ?: "QR error")
+            } catch (_: Throwable) {}
+        }
+        true
+    }
+
+    private fun handleQrMessage(msg: android.os.Message) {
         when (msg.what) {
             RC_SUCCESS -> {
                 val qr = msg.obj as? QR
@@ -267,11 +307,18 @@ class PaymentChannel(private val activity: Activity) {
                 val text = msg.obj?.toString() ?: "QR request failed"
                 val reply = pendingQr
                 pendingQr = null
-                if (reply != null) reply.error("QR_FAILED", text, null)      // while generating
-                else if (activeQr != null) pushQrStatus("error", null, text)  // while polling
+                if (reply != null) {
+                    reply.error("QR_FAILED", text, null)                      // while generating
+                } else if (activeQr != null) {                                // while polling
+                    // The SDK poller only recognises status "pending"/"success"/"failed".
+                    // Any other status (e.g. UAT returns "Approved") arrives here as
+                    // ERROR_MESSAGE with just the raw status text, so classify it ourselves.
+                    val mapped = qrStatusFromText(text)
+                    Log.d(TAG, "QR polling ended with unrecognised status '$text' -> $mapped")
+                    pushQrStatus(mapped, null, text)
+                }
             }
         }
-        true
     }
 
     private fun generateQr(call: MethodCall, result: MethodChannel.Result) {
@@ -289,8 +336,19 @@ class PaymentChannel(private val activity: Activity) {
             this.merchantRefNo = call.argument<String>("merchantRefNo") ?: ""
             this.paymentType = "BharatQR"
         }
+        if (!isActivatedForEnv()) {
+            return result.error("NOT_ACTIVATED", "Payment device not activated for ${BuildConfig.PS_ENV}", null)
+        }
         pendingQr = result
-        qrExecutor.generateQr(request)
+        try {
+            qrExecutor.generateQr(request)
+        } catch (e: Throwable) {
+            // Reply here and clear pendingQr, so no one replies to this result again
+            // (a second reply throws and closes the app).
+            Log.e(TAG, "generateQr failed", e)
+            pendingQr = null
+            result.error("QR_FAILED", e.message ?: e.javaClass.simpleName, null)
+        }
     }
 
     /** Staff pressed Cancel / QR expired / screen closed. */
@@ -312,15 +370,23 @@ class PaymentChannel(private val activity: Activity) {
             "status" to status,
             "responseCode" to r?.responseCode,
             "responseMessage" to (r?.responseMessage ?: error),
-            "transactionRefNo" to r?.transactionRefNo,
+            "transactionRefNo" to (r?.transactionRefNo ?: qr.transactionRefNo),
             "orderId" to (r?.orderId ?: qr.orderId),
-            "amount" to r?.amount?.toString(),
+            "amount" to (r?.amount ?: qr.amount)?.toString(),
             "transactionDate" to r?.transactionDate?.toString(),
             "paymentType" to r?.paymentType
         )
         Log.d(TAG, "QR result -> $map")
         channel?.invokeMethod("onQrStatus", map)
     }
+
+    /** Maps a raw QR status text from the SDK's ERROR_MESSAGE to success / failed / error. */
+    private fun qrStatusFromText(text: String): String =
+        when (text.trim().lowercase(java.util.Locale.ROOT)) {
+            "approved", "success", "successful", "captured", "completed", "paid" -> "success"
+            "declined", "rejected", "failure", "failed", "expired", "cancelled" -> "failed"
+            else -> "error"
+        }
 
     /** QR string -> PNG base64 (uses ZXing, already in build.gradle). */
     private fun qrToBase64(text: String, size: Int = 600): String {
