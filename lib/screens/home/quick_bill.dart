@@ -607,6 +607,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                 "name": customerName,
                 "star_id": (bill.starId ?? '').isEmpty ? '28' : bill.starId,
                 "pooja": item.name,
+                "pooja_name": item.name, 
                 "pooja_id": item.id.toString(),
                 "qty": item.qty.toString(),
                 "date": "${now.year}-${now.month}-${now.day}",
